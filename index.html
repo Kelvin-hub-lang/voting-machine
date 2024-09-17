@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BYEF Voting</title>
+    <style>
+        /* Set up the body styling with a background image */
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('voting-box-background.jpg'); /* Use your image path here */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Make the main content container semi-transparent */
+        .container {
+            width: 60%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9); /* White with transparency */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #0066cc; /* Dark blue for headers */
+        }
+
+        /* Style the labels and inputs to improve readability */
+        label {
+            font-weight: bold;
+            color: #444;
+        }
+
+        select, input[type="email"], input[type="radio"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        /* Style the submit button */
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Bolded, colored scrolling marquee */
+        marquee {
+            font-weight: bold;
+            font-size: 18px;
+            color: #0066cc;
+            margin-bottom: 20px;
+        }
+
+        /* Additional styling for aspirant options */
+        .aspirant-option {
+            padding: 10px;
+            background: #f9f9f9;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <marquee behavior="scroll" direction="left" style="font-weight: bold; font-size: 1.2em;"></marquee>
+            Only one vote per person is allowed. Vote wisely!
+        </marquee>
+
+        <h1>Vote for Your Ward Representative</h1>
+        
+        <form action="submit_vote.php" method="POST">
+            <!-- Email field -->
+            <label for="email">Your Email Address:</label>
+            <input type="email" id="email" name="email" required>
+
+            <!-- Ward selection -->
+            <label for="ward">Select Your Ward:</label>
+            <select name="ward" id="ward" required>
+                <option value="">-- Select Ward --</option>
+                <option value="silibwet">Silibwet</option>
+                <option value="ndaraweta">Ndaraweta</option>
+                <option value="chesoen">Chesoen</option>
+                <option value="mutarakwa">Mutarakwa</option>
+                <option value="longisa">Longisa</option>
+                <option value="kembu">Kembu</option>
+                <option value="chemaner">Chemaner</option>
+                <option value="merigi">Merigi</option>
+                <option value="kipreres">Kipreres</option>
+                <option value="sigor">Sigor</option>
+                <option value="kongasis">Kongasis</option>
+                <option value="chebunyo">Chebunyo</option>
+                <option value="nyongores">Nyongores</option>
+                <option value="siongiroi">Siongiroi</option>
+                <option value="ndanai_abosi">Ndanai Abosi</option>
+                <option value="kipsonoi">Kipsonoi</option>
+                <option value="kapletundo">Kapletundo</option>
+                <option value="chemagel">Chemagel</option>
+                <option value="manaret_rongena">Manaret/Rongena</option>
+                <option value="kimulot">Kimulot</option>
+                <option value="mogogosiek">Mogogosiek</option>
+                <option value="boito">Boito</option>
+                <option value="embomos">Embomos</option>
+                <option value="chepchabas">Chepchabas</option>
+                <option value="singorwet">Singorwet</option>
+            </select>
+
+            <!-- Conditional ward aspirant fields -->
+            <div id="aspirants"></div>
+
+            <button type="submit">Submit Your Vote</button>
+        </form>
+    </div>
+
+    <script>
+        // List of aspirants by ward
+        const aspirantsByWard = {
+            'silibwet': ['Collins Kipngetich Rono', 'Sharon Cherotich', 'Ebeneza Kimutai Bett', 'Japhet Yegon'],
+            'ndaraweta': ['Hassan Kiptoo', 'Victor Kiplangat (Moi)'],
+            'chesoen': ['Agatha Chepkemoi'],
+            'mutarakwa': ['Mr. Joho Ronald', 'Kiprotich Langat Borowo'],
+            'longisa': ['Emmanuel Kipngeno', 'Kelvin James', 'Benjamin Ngeno'],
+            'kembu': ['Kipkirui Sang Benard', 'Tonui'],
+            'chemaner': ['Amos Koech', 'Kipyegon Rono'],
+            'merigi': ['Korir Cheruiyot Benjamin', 'Patrick Kirui', 'Josphat Kipkemoi', 'Jalody Cherono', 'Brian Kipkorir Yegon'],
+            'kipreres': ['Kiplangat Koech Hillary', 'Nehemiah Cheruiyot', 'Nicholas Kiprotich Langat', 'Kiprotich Vincent', 'Felix Cheruyot'],
+            'sigor': ['Setek Mtoto Wa Baba', 'Joan Chemutai'],
+            'kongasis': ['Leonard Kiprotich Misik', 'Emanuel', 'Zephenia Kenwaa'],
+            'chebunyo': ['Geofry Bett', 'Nosh Kibet', 'Koech Benvictor', 'Noah Yegon', 'Paul Rotich'],
+            'nyongores': ['Kiplangat Kirui', 'Kiplangat Kilel Robert', 'Faith Chepkemoi', 'Festus Ngeno', 'Benson Koech', 'Kiplangat Rotich Peter', 'Frankline Bett', 'Collins Kipkurui', 'Kipkorir Koech Sosten', 'Evans Cheruyot Bett', 'Kipkoech Chelule', 'Amos Kiplangat Kirui', 'Cheruyot Clement', 'Chebet Korir', 'Thomas Ngetich', 'Ronald Ruto', 'Abraham Kiprotich Korir', 'Gedion Cheruyot', 'Millicent Chepkorir', 'Shadrack Kibet', 'Duncan Kipngeno', 'Vincent Kiprotich'],
+            'siongiroi': ['Elkana Kipngeno Malema', 'Cheptoyot Weldon'],
+            'ndanai_abosi': ['Kiprotich Cheruiyot'],
+            'kipsonoi': ['Collins Kipkorir'],
+            'kapletundo': ['Kiptoo Chirchir', 'Weldon Simotwo'],
+            'chemagel': ['Debra'],
+            'manaret_rongena': ['Vincent Kipkoech Korir'],
+            'kimulot': [],
+            'mogogosiek': [],
+            'boito': ['Nicholus Kipkemoi'],
+            'embomos': ['Mathew Maritim'],
+            'chepchabas': [],
+            'singorwet': []
+        };
+
+        // Handle ward selection and display aspirants
+        document.getElementById('ward').addEventListener('change', function() {
+            const ward = this.value;
+            const aspirantsDiv = document.getElementById('aspirants');
+            aspirantsDiv.innerHTML = ''; // Clear previous options
+
+            if (aspirantsByWard[ward] && aspirantsByWard[ward].length > 0) {
+                aspirantsByWard[ward].forEach(function(aspirant) {
+                    const label = document.createElement('label');
+                    label.innerHTML = aspirant;
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = 'aspirant';
+                    input.value = aspirant;
+                    const div = document.createElement('div');
+                    div.className = 'aspirant-option';
+                    div.appendChild(input);
+                    div.appendChild(label);
+                    aspirantsDiv.appendChild(div);
+                });
+            } else {
+                aspirantsDiv.innerHTML = `<p>No aspirant participated in this ward.</p>`;
+            }
+        });
+    </script>
+<footer>
+    <p>&copy; 2024 Your Organization Name. All rights reserved.</p>
+</footer> 
+
+<script src="index.js">
+    document.addEventListener('DOMContentLoaded', function() {
+    const wardSelect = document.getElementById('ward');
+    const aspirantsContainer = document.getElementById('aspirants-container');
+
+    // Sample aspirants data
+    const aspirants = {
+        "silibwet": [
+            { name: "Collins Kipngetich Rono", photo: "images/collins.jpg" },
+            { name: "Sharon Cherotich", photo: "images/sharon.jpg" },
+            { name: "Ebeneza Kimutai Bett", photo: "images/ebeneza.jpg" },
+            { name: "Japhet Yegon", photo: "images/japhet.jpg" }
+        ],
+        "ndaraweta": [
+            { name: "Hassan Kiptoo", photo: "images/hassan.jpg" },
+            { name: "Victor Kiplangat (Moi)", photo: "images/victor.jpg" }
+        ],
+        "chesoen": [
+            { name: "Agatha Chepkemoi", photo: "images/agatha.jpg" }
+        ],
+        "mutarakwa": [
+            { name: "Mr. Joho Ronald", photo: "images/joho.jpg" },
+            { name: "Kiprotich Langat Borowo", photo: "images/kiprotich.jpg" }
+        ],
+        "longisa": [
+            { name: "Emmanuel Kipngeno", photo: "images/emmanuel.jpg" },
+            { name: "Kelvin James", photo: "images/kelvin.jpg" },
+            { name: "Benjamin Ngeno", photo: "images/benjamin.jpg" }
+        ],
+        "kembu": [
+            { name: "Kipkirui Sang Benard", photo: "images/benard.jpg" },
+            { name: "Tonui", photo: "images/tonui.jpg" }
+        ],
+        "chemaner": [
+            { name: "Amos Koech", photo: "images/amos.jpg" },
+            { name: "Kipyegon Rono", photo: "images/kipyegon.jpg" }
+        ],
+        "merigi": [
+            { name: "Korir Cheruiyot Benjamin", photo: "images/korir.jpg" },
+            { name: "Patrick Kirui", photo: "images/patrick.jpg" },
+            { name: "Josphat Kipkemoi", photo: "images/josphat.jpg" },
+            { name: "Jalody Cherono", photo: "images/jalody.jpg" },
+            { name: "Brian Kipkorir Yegon", photo: "images/brian.jpg" }
+        ],
+        "kipreres": [
+            { name: "Kiplangat Koech Hillary", photo: "images/hillary.jpg" },
+            { name: "Nehemiah Cheruiyot", photo: "images/nehemiah.jpg" },
+            { name: "Nicholas Kiprotich Langat", photo: "images/nicholas.jpg" },
+            { name: "Kiprotich Vincent", photo: "images/vincent.jpg" },
+            { name: "Felix Cheruyot", photo: "images/felix.jpg" }
+        ],
+        "sigor": [
+            { name: "Setek Mtoto WA Baba", photo: "images/setek.jpg" },
+            { name: "Joan Chemutai", photo: "images/joan.jpg" }
+        ],
+        "kongasis": [
+            { name: "Leonard Kiprotich Misik", photo: "images/leonard.jpg" },
+            { name: "Emanuel", photo: "images/emanuel.jpg" },
+            { name: "Zephenia Kenwaa", photo: "images/zephenia.jpg" }
+        ],
+        "chebunyo": [
+            { name: "Geofry Bett", photo: "images/geofry.jpg" },
+            { name: "Nosh Kibet", photo: "images/nosh.jpg" },
+            { name: "Geoffrey Bett", photo: "images/geoffrey.jpg" },
+            { name: "Koech Benvictor", photo: "images/koech.jpg" },
+            { name: "Noah Yegon", photo: "images/noah.jpg" },
+            { name: "Paul Rotich", photo: "images/paul.jpg" }
+        ],
+        "nyongores": [
+            { name: "Kiplangat Kirui", photo: "images/kiplangat.jpg" },
+            { name: "Kiplangat Kilel Robert", photo: "images/kilel.jpg" },
+            { name: "Faith Chepkemoi", photo: "images/faith.jpg" },
+            { name: "Festus Ngeno", photo: "images/festus.jpg" },
+            { name: "Benson Koech", photo: "images/benson.jpg" },
+            { name: "Kiplangat Rotich Peter", photo: "images/rotich.jpg" },
+            { name: "Frankline Bett", photo: "images/frankline.jpg" },
+            { name: "Collins Kipkurui", photo: "images/collins_2.jpg" },
+            { name: "Kipkorir Koech Sosten", photo: "images/koseten.jpg" },
+            { name: "Evans Cheruyot Bett", photo: "images/evans.jpg" },
+            { name: "Kipkoech Chelule", photo: "images/kipkoech.jpg" },
+            { name: "Amos Kiplangat Kirui", photo: "images/amos_2.jpg" },
+            { name: "Cheruyot Clement", photo: "images/clement.jpg" },
+            { name: "Chebet Korir", photo: "images/chebet.jpg" },
+            { name: "Thomas Ngetich", photo: "images/thomas.jpg" },
+            { name: "Ronald Ruto", photo: "images/ronald.jpg" },
+            { name: "Abraham Kiprotich Korir", photo: "images/abraham.jpg" },
+            { name: "Gedion Cheruyot", photo: "images/gedion.jpg" },
+            { name: "Millicent Chepkorir", photo: "images/millicent.jpg" },
+            { name: "Shadrack Kibet", photo: "images/shadrack.jpg" },
+            { name: "Duncan Kipngeno", photo: "images/duncan.jpg" },
+            { name: "Vincent Kiprotich", photo: "images/vincent_2.jpg" }
+        ],
+        "siongiroi": [
+            { name: "Elkana Kipngeno Malema", photo: "images/elkana.jpg" },
+            { name: "Cheptoyot Weldon", photo: "images/cheptoyot.jpg" }
+        ],
+        "ndanai_abosi": [
+            { name: "Kiprotich Cheruiyot", photo: "images/kiprotich_2.jpg" }
+        ],
+        "kipsonoi": [
+            { name: "Collins Kipkorir", photo: "images/collins_3.jpg" }
+        ],
+        "kapletundo": [],
+        "chemagel": [
+            { name: "Debra", photo: "images/debra.jpg" }
+        ],
+        "manaret_rongena": [
+            { name: "Vincent Kipkoech Korir", photo: "images/vincent_3.jpg" }
+        ],
+        "kimulot": [],
+        "mogogosiek": [],
+        "boito": [
+            { name: "Nicholus Kipkemoi", photo: "images/nicholus.jpg" }
+        ],
+        "embomos": [
+            { name: "Mathew Maritim", photo: "images/mathew.jpg" }
+        ],
+        "chepchabas": [],
+        "singorwet": []
+    };
+
+    // Populate aspirants based on ward selection
+    wardSelect.addEventListener('change', function() {
+        const ward = this.value;
+        aspirantsContainer.innerHTML = '';
+
+        if (aspirants[ward]) {
+            aspirants[ward].forEach(aspirant => {
+                const div = document.createElement('div');
+                div.className = 'aspirant';
+                div.innerHTML = `
+                    <h3>${aspirant.name}</h3>
+                    <img src="${aspirant.photo}" alt="${aspirant.name}" width="100">
+                    <p>${aspirant.name}</p>
+                    <input type="radio" name="aspirant" value="${aspirant.name}" required> Vote for this aspirant
+                `;
+                aspirantsContainer.appendChild(div);
+            });
+        } else {
+            const div = document.createElement('div');
+            div.className = 'no-aspirants';
+            div.innerHTML = '<p>No aspirants for this ward.</p>';
+            aspirantsContainer.appendChild(div);
+        }
+    });
+
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(event) {
+        const ward = wardSelect.value;
+        const aspirant = document.querySelector('input[name="aspirant"]:checked');
+
+        if (!ward || !aspirant) {
+            alert("Please select a ward and an aspirant.");
+            event.preventDefault();
+        }
+    });
+
+    // Fetch results every 30 seconds
+    function fetchResults() {
+        fetch('results.php')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('results-container').innerHTML = data;
+            });
+    }
+
+    setInterval(fetchResults, 30000); // Fetch results every 30 seconds
+});
+
+</script>.
+</body>
+</html>

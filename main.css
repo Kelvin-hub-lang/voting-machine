@@ -1,0 +1,83 @@
+        /* Set up the body styling with a background image */
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('voting-box-background.jpg'); /* Use your image path here */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Make the main content container semi-transparent */
+        .container {
+            width: 60%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9); /* White with transparency */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #0066cc; /* Dark blue for headers */
+        }
+
+        /* Style the labels and inputs to improve readability */
+        label {
+            font-weight: bold;
+            color: #444;
+        }
+
+        select, input[type="email"], input[type="radio"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        /* Style the submit button */
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Bolded, colored scrolling marquee */
+        marquee {
+            font-weight: bold;
+            font-size: 18px;
+            color: #0066cc;
+            margin-bottom: 20px;
+        }
+
+        /* Additional styling for aspirant options */
+        .aspirant-option {
+            padding: 10px;
+            background: #f9f9f9;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+        }
